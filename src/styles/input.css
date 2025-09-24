@@ -1,0 +1,100 @@
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+
+@theme default{
+	--color-accent: #8b7e5b;
+	--color-accent-dark: #5e553d;
+	--color-teal-light: #819799;
+	--color-teal: #3b6063;
+	--color-teal-dark: #1b5354;
+	--color-light-grey: #c7c7c7;
+	--font-display: "Cormorant", serif;
+	--font-heading: "Ballet", cursive;
+	--font-display-farsi: "Parastoo", serif;
+	--font-heading-farsi: "Gulzar", cursive;
+	--custom-box-shadow: 0 25px 50px -12px #000;
+	--non-header-height: calc(100vh - 4rem);
+	--blog-tile-width: calc((33% - 2rem));
+}
+
+@font-face {
+	font-family: "Ballet";
+	font-optical-sizing: auto;
+	font-style: normal;
+	font-display: swap;
+	src: url(/fonts/Ballet-Regular-VariableFont_opsz.ttf) format(truetype);
+}
+
+@font-face {
+	font-family: "Cormorant";
+	font-optical-sizing: auto;
+	font-size: normal;
+	font-display: swap;
+	src: url(/fonts/Cormorant-VariableFont_wght.ttf) format(truetype);
+	font-style: normal;
+}
+
+@font-face {
+	font-family: "Cormorant";
+	font-optical-sizing: auto;
+	font-size: normal;
+	font-display: swap;
+	src: url(/fonts/Cormorant-Italic-VariableFont_wght.ttf) format(truetype);
+	font-style: italic;
+}
+
+@font-face {
+	font-family: "Gulzar";
+	font-optical-sizing: auto;
+	font-style: normal;
+	font-display: swap;
+	src: url(/fonts/Gulzar-Regular.ttf) format(truetype);
+}
+
+@font-face {
+	font-family: "Parastoo";
+	font-optical-sizing: auto;
+	font-style: normal;
+	font-display: swap;
+	src: url(/fonts/Parastoo-VariableFont_wght.ttf) format(truetype);
+}
+
+.sr-only {
+	border: 0;
+	padding: 0;
+	margin: 0;
+	position: absolute !important;
+	height: 1px;
+	width: 1px;
+	overflow: hidden;
+	/* IE6, IE7 - a 0 height clip, off to the bottom right of the visible 1px box */
+	clip: rect(1px 1px 1px 1px);
+	/* maybe deprecated but we need to support legacy browsers */
+	clip: rect(1px, 1px, 1px, 1px);
+	/* modern browsers, clip-path works inwards from each corner */
+	clip-path: inset(50%);
+	/* added line to stop words getting smushed together (as they go onto separate lines and some screen readers do not understand line feeds as a space */
+	white-space: nowrap;
+}
+
+/* ===== Scrollbar CSS ===== */
+  /* Firefox */
+  * {
+    scrollbar-width: auto;
+    scrollbar-color: var(--color-accent) var(--color-teal-light);
+  }
+
+  /* Chrome, Edge, and Safari */
+  *::-webkit-scrollbar {
+    width: 16px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: var(--color-teal-dark);
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background-color: var(--color-accent);
+    border-radius: 10px;
+    border: 3px dashed black;
+  }
