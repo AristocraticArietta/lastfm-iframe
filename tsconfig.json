@@ -7,6 +7,8 @@
       "@components/*": ["src/components/*"],
       "@assets/*": ["src/assets/*"],
       "@styles/*": ["src/styles/*"],
+      "@api/*": ["src/pages/api/*"],
+      "@js/*": ["src/js/*"],
       "@src/*": ["src/*"],
     },
     "baseUrl": ".",

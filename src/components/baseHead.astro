@@ -14,8 +14,10 @@ declare global {
 window.DateTime = DateTime
 window.Alpine = Alpine
 
-import lastFmPlayer from './lastfm';
-Alpine.data('lastFmPlayer', lastFmPlayer);
+import lastFmPlayer from '@js/lastFmPlayer.js';
+document.addEventListener('alpine:init', () => {
+	Alpine.data('lastFmPlayer', lastFmPlayer);
+})
 
 Alpine.start()
 </script>

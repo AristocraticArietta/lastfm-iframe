@@ -6,23 +6,18 @@
 // Assuming Luxon and Alpine.js are installed via NPM
 // Example: npm install luxon alpinejs
 
-// Define props for the component
-interface Props {
-  lastfmApiKey: string;
-  lastfmUsername: string;
-}
-
-const { lastfmApiKey, lastfmUsername } = Astro.props;
-
 // --- Server-Side Fetch (executed on the server at build/request time) ---
-// This is the most secure way to handle the initial API call.
+// This is the most secure way to handle the initial API call using environment variables.
 let initialTrackData = null;
 let initialError = null;
 
+const lastfmApiKey = import.meta.env.LASTFM_API_KEY;
+const lastfmUsername = import.meta.env.LASTFM_USERNAME;
+
 try {
   // Ensure API key and username are provided
-  if (!lastfmApiKey || !lastfmUsername || lastfmApiKey === '---REPLACE_WITH_YOUR_API_KEY---' || lastfmUsername === '---REPLACE_WITH_YOUR_USERNAME---') {
-    throw new Error('Please configure your Last.fm API key and username in the component props.');
+  if (!lastfmApiKey || !lastfmUsername) {
+    throw new Error('Please configure your Last.fm API key and username in your .env file.');
   }
 
   const url = `https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${lastfmUsername}&api_key=${lastfmApiKey}&format=json&limit=1&extended=1`;
@@ -38,7 +33,7 @@ try {
       name: trackData.name,
       artist: trackData.artist.name,
       album: trackData.album['#text'],
-      albumCover: trackData.image.find(img => img.size === 'extralarge')['#text'] || trackData.image.find(img => img.size === 'large')['#text'] || 'https://placehold.co/300x300/4B5563/FFFFFF?text=No+Cover',
+      albumCover: trackData.image.find(img => img.size === 'medium')['#text'] || trackData.image.find(img => img.size === 'large')['#text'] || 'https://placehold.co/300x300/4B5563/FFFFFF?text=No+Cover',
       url: trackData.url,
       isNowPlaying: trackData['@attr']?.nowplaying === 'true',
       loved: trackData.loved === '1',
@@ -56,7 +51,7 @@ try {
 <script>
   // Import Alpine.js and your custom data file
   import Alpine from 'alpinejs';
-  import lastFmPlayer from './lastfm';
+  import lastFmPlayer from '@js/lastFmPlayer.js';
 
   // Define the Alpine data object in a modular way
   // This will fire when Alpine is ready to process the data
@@ -67,12 +62,9 @@ try {
 
 <div
   class="flex justify-center items-center h-full w-full bg-teal-dark"
-  x-data=`lastFmPlayer({
-    initialTrackData: JSON.parse('${JSON.stringify(initialTrackData)}'),
-    initialError: JSON.parse('${JSON.stringify(initialError)}'),
-    lastfmApiKey: '${lastfmApiKey}',
-    lastfmUsername: '${lastfmUsername}'
-  })`
+  x-data="lastFmPlayer()"
+  data-initial-track-data={JSON.stringify(initialTrackData)}
+  data-initial-error={JSON.stringify(initialError)}
 >
   <div class="bg-teal text-light-grey h-[90%] w-[80%] rounded-xl shadow-lg border border-light-grey font-display font-bold flex flex-col justify-center items-center">
     <!-- Initial server-side rendered content will be visible immediately. -->
