@@ -8,8 +8,8 @@ export const GET = async ({ url }) => {
     let response;
     
     // Get the API key and username from the server's environment variables
-    const lastfmApiKey = import.meta.env.LASTFM_API_KEY;
-    const lastfmUsername = import.meta.env.LASTFM_USERNAME;
+    const lastfmApiKey = process.env.LASTFM_API_KEY;
+    const lastfmUsername = process.env.LASTFM_USERNAME;
 
     try {
         if (!lastfmApiKey || !lastfmUsername) {

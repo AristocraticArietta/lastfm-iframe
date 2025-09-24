@@ -19,6 +19,7 @@
     "astro-htmx": "^1.0.6",
     "dotenv": "^17.2.2",
     "luxon": "^3.7.2",
+    "netlify-cli": "^23.7.2",
     "tailwindcss": "^4.1.13"
   },
   "devDependencies": {
