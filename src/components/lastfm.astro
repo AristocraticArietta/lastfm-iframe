@@ -1,0 +1,123 @@
+---
+// LastFmNowPlaying.astro
+// Astro Component with Alpine.js, Luxon, and Last.fm API
+// This version fetches data server-side and refreshes client-side.
+
+// Assuming Luxon and Alpine.js are installed via NPM
+// Example: npm install luxon alpinejs
+
+// Define props for the component
+interface Props {
+  lastfmApiKey: string;
+  lastfmUsername: string;
+}
+
+const { lastfmApiKey, lastfmUsername } = Astro.props;
+
+// --- Server-Side Fetch (executed on the server at build/request time) ---
+// This is the most secure way to handle the initial API call.
+let initialTrackData = null;
+let initialError = null;
+
+try {
+  // Ensure API key and username are provided
+  if (!lastfmApiKey || !lastfmUsername || lastfmApiKey === '---REPLACE_WITH_YOUR_API_KEY---' || lastfmUsername === '---REPLACE_WITH_YOUR_USERNAME---') {
+    throw new Error('Please configure your Last.fm API key and username in the component props.');
+  }
+
+  const url = `https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${lastfmUsername}&api_key=${lastfmApiKey}&format=json&limit=1&extended=1`;
+  
+  const response = await fetch(url);
+  const data = await response.json();
+
+  if (data.error) {
+    initialError = data.message;
+  } else if (data.recenttracks && data.recenttracks.track) {
+    const trackData = data.recenttracks.track[0];
+    initialTrackData = {
+      name: trackData.name,
+      artist: trackData.artist.name,
+      album: trackData.album['#text'],
+      albumCover: trackData.image.find(img => img.size === 'extralarge')['#text'] || trackData.image.find(img => img.size === 'large')['#text'] || 'https://placehold.co/300x300/4B5563/FFFFFF?text=No+Cover',
+      url: trackData.url,
+      isNowPlaying: trackData['@attr']?.nowplaying === 'true',
+      loved: trackData.loved === '1',
+      timestamp: trackData.date?.uts ? parseInt(trackData.date.uts, 10) * 1000 : null,
+    };
+  } else {
+    initialError = 'No recent tracks found.';
+  }
+} catch (e) {
+  initialError = `Error fetching data: ${e.message}`;
+}
+---
+
+<!-- This script block runs on the client to provide interactivity -->
+<script>
+  // Import Alpine.js and your custom data file
+  import Alpine from 'alpinejs';
+  import lastFmPlayer from './lastfm';
+
+  // Define the Alpine data object in a modular way
+  // This will fire when Alpine is ready to process the data
+  document.addEventListener('alpine:init', () => {
+    Alpine.data('lastFmPlayer', lastFmPlayer);
+  });
+</script>
+
+<div
+  class="flex justify-center items-center h-full w-full bg-teal-dark"
+  x-data=`lastFmPlayer({
+    initialTrackData: JSON.parse('${JSON.stringify(initialTrackData)}'),
+    initialError: JSON.parse('${JSON.stringify(initialError)}'),
+    lastfmApiKey: '${lastfmApiKey}',
+    lastfmUsername: '${lastfmUsername}'
+  })`
+>
+  <div class="bg-teal text-light-grey h-[90%] w-[80%] rounded-xl shadow-lg border border-light-grey font-display font-bold flex flex-col justify-center items-center">
+    <!-- Initial server-side rendered content will be visible immediately. -->
+    <div x-show="!track && isLoading">
+        <p>Initializing...</p>
+    </div>
+    
+    <div x-show="!track && error" class="text-center text-red-400">
+      <p>Error:</p>
+      <p x-text="error"></p>
+    </div>
+
+    <template x-if="track && !error">
+      <div class="w-full h-full flex flex-col items-center text-center justify-around">
+        <img
+          class="rounded-lg shadow-xl border border-light-grey h-[40%] aspect-square object-cover"
+          :src="track.albumCover"
+          alt="Album Cover"
+        />
+        
+        <div class="w-full h-fit text-light-grey flex flex-col items-center">
+          <p class="text-2xl m-0 p-0 wrap-normal h-full flex flex-col justify-between items-center">
+            <span x-text="track.name"></span>
+            <span x-show="track.loved" class="text-red-500 ml-2" title="Loved track">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block -mt-1" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
+                </svg>
+            </span>
+          </p>
+          <p class="text-lg  m-0 p-0">
+            by <span x-text="track.artist"></span>
+          </p>
+          <p class="text-md italic m-0 p-0">
+            from "<span x-text="track.album"></span>"
+          </p>
+        </div>
+
+        <div class="text-md">
+          <span x-text="track.isNowPlaying ? 'Currently playing' : getTimeAgo()"></span>
+        </div>
+
+        <a :href="track.url" target="_blank" rel="noopener noreferrer" class="px-4 py-2 text-md text-accent-dark bg-teal-light rounded-lg shadow-md hover:bg-light-grey transition-colors">
+          View on Last.fm
+        </a>
+      </div>
+    </template>
+  </div>
+</div>

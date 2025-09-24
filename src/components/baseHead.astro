@@ -1,6 +1,24 @@
 ---
 import '@styles/global.css';
 ---
+<script>
+import Alpine from 'alpinejs';
+import { DateTime } from 'luxon';
+
+declare global {
+	interface Window {
+		Alpine: typeof Alpine
+		DateTime: typeof DateTime
+	}
+}
+window.DateTime = DateTime
+window.Alpine = Alpine
+
+import lastFmPlayer from './lastfm';
+Alpine.data('lastFmPlayer', lastFmPlayer);
+
+Alpine.start()
+</script>
 <!-- Global Metadata -->
 <meta charset="utf-8" />
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
